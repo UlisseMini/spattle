@@ -18,14 +18,12 @@ function intersecting(b1, b2) {
 }
 
 class Player {
-  constructor(color) {
+  constructor(color, x, y) {
+    this.x = x, this.y = y
     this.dx = 100, this.dy = 0
     this.ddx = 20, this.ddy = 90
     this.radius = 30
     this.color = color
-
-    this.x = Math.floor(this.radius + Math.random() * (width - this.radius))
-    this.y = Math.floor(this.radius + Math.random() * (height - this.radius))
   }
 
   step(dt) {
@@ -33,7 +31,7 @@ class Player {
     this.dx += this.ddx * dt, this.dy += this.ddy * dt
 
     // apply drag
-    this.dx *= 1 - 0.01 * dt, this.dy *= 1 - 0.01 * dt
+    this.dx *= 1 - 0.05 * dt, this.dy *= 1 - 0.05 * dt
   }
 
   draw(ctx) {
@@ -60,7 +58,7 @@ class PhysicsSimulator {
   }
 
   handleCollision(b1, b2) {
-    // TODO
+
   }
 
   handleCollisions() {
@@ -87,7 +85,10 @@ class PhysicsSimulator {
   }
 }
 
-let players = [new Player('blue'), new Player('red')]
+let players = [
+  new Player('blue', width / 6, height / 2),
+  new Player('red', 5 * width / 6, height / 2)
+]
 
 let simulator = new PhysicsSimulator(width, height)
 simulator.balls = [].concat(players)
