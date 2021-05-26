@@ -58,7 +58,9 @@ class PhysicsSimulator {
   }
 
   handleCollision(b1, b2) {
-
+    // https://www.wikiwand.com/en/Elastic_collision
+    // If both masses are the same, swap velocity
+    [b1.dx, b2.dx] = [b2.dx, b1.dx]
   }
 
   handleCollisions() {
