@@ -25,6 +25,8 @@ class Player {
     this.dAngle = Math.PI
     this.angle = Math.PI / 3
 
+    this.health = 100
+
     // Constants
     this.color = color
     this.radius = 30
@@ -78,6 +80,14 @@ class PhysicsSimulator {
     // https://www.wikiwand.com/en/Elastic_collision
     // If both masses are the same, swap velocity
     [b1.dx, b2.dx] = [b2.dx, b1.dx]
+
+    // Teleport them away to prevent them getting stuck inside eachother
+    // minimize t such that dist(b1, b2) after update is equal to r1+r2.
+    const dist = distance({x: b1.x + b1.dx, y: b1.y + b1.dy}, {x: b2.x + b2.dx, y: b2.y + b2.dy})
+    const dt = Math.sqrt((b1.radius + b2.radius)) / dist
+
+    b1.x += b1.dx * dt, b1.y += b1.dy * dt
+    b2.x += b2.dx * dt, b2.y += b2.dy * dt
   }
 
   handleCollisions() {
@@ -109,6 +119,15 @@ let players = [
   new Player('red', 5 * width / 6, height / 2)
 ]
 
+// Game speed multiplier
+let speed = 1
+
+window.onkeypress = (k) => {
+  let n = k.keyCode - 48;
+  if (n >= 0 && n < 5) speed = n
+  if (n >= 5 && n <= 9) speed = 1 / n
+}
+
 let simulator = new PhysicsSimulator(width, height)
 simulator.balls = [].concat(players)
 
@@ -121,7 +140,7 @@ function draw(timestamp) {
   ctx.fillStyle = 'rgba(200,200,200,0.4)'
   ctx.fillRect(0, 0, width, height)
 
-  simulator.step(dt)
+  simulator.step(speed * dt)
   simulator.draw(ctx)
 
   window.requestAnimationFrame(draw)
