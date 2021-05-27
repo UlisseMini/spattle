@@ -21,7 +21,7 @@ class Player {
   constructor(color, x, y) {
     this.x = x, this.y = y
     this.dx = 100, this.dy = 0
-    this.ddx = 0.5, this.ddy = 1
+    this.ddx = -0.5, this.ddy = 1
     this.dAngle = Math.PI
     this.angle = Math.PI / 3
 
@@ -41,6 +41,12 @@ class Player {
     // apply drag
     this.dx *= 1 - 0.05 * dt, this.dy *= 1 - 0.05 * dt
     this.angle += this.dAngle * dt
+  }
+
+  hit(other) {
+    // 0.1 is completely arbitrary
+    const damage = Math.round(0.1 * Math.sqrt(other.dx ** 2 + other.dy ** 2))
+    this.health -= damage
   }
 
   draw(ctx) {
@@ -77,6 +83,11 @@ class PhysicsSimulator {
   }
 
   handleCollision(b1, b2) {
+    // Ball specific logic for being hit
+    // NOTE: we call this *before* handling the collision
+    if (b1.hit) {b1.hit(b2)}
+    if (b2.hit) {b2.hit(b1)}
+
     // https://www.wikiwand.com/en/Elastic_collision
     // If both masses are the same, swap velocity
     [b1.dx, b2.dx] = [b2.dx, b1.dx]
