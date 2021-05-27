@@ -148,6 +148,16 @@ function draw(timestamp) {
   simulator.step(speed * dt)
   simulator.draw(ctx)
 
+  // Display health of each player
+  ctx.font = '48px monospace'
+  let healthY = 50
+  players.forEach(player => {
+    const c = player.color.slice(0, 1).toUpperCase()
+    ctx.fillStyle = player.color
+    ctx.fillText(`${c}: ${player.health}`, 10, healthY)
+    healthY += 50
+  })
+
   window.requestAnimationFrame(draw)
 }
 
