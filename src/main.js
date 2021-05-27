@@ -136,6 +136,10 @@ let prev = 0
 function draw(timestamp) {
   const dt = (timestamp - prev) / 1000
   prev = timestamp
+  // Too much delay since last frame, they must have gone to
+  // a different tab or something, if we animate in a huge jump
+  // everything will break
+  if (dt > 0.1) return window.requestAnimationFrame(draw)
 
   // Clear the screen, but leave a blur effect
   ctx.fillStyle = 'rgba(200,200,200,0.4)'
