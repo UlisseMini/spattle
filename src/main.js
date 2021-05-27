@@ -24,6 +24,9 @@ class Player {
     this.ddx = 20, this.ddy = 90
     this.radius = 30
     this.color = color
+    this.angle = Math.PI / 3
+    this.noseLength = this.radius / 2
+    this.dAngle = Math.PI
   }
 
   step(dt) {
@@ -32,13 +35,24 @@ class Player {
 
     // apply drag
     this.dx *= 1 - 0.05 * dt, this.dy *= 1 - 0.05 * dt
+    this.angle += this.dAngle * dt
   }
 
   draw(ctx) {
+    // Draw our circle
     ctx.fillStyle = this.color
     ctx.beginPath()
     ctx.ellipse(this.x, this.y, this.radius, this.radius, 0, 0, Math.PI * 2)
     ctx.fill()
+
+    // Draw a line in the direction we're looking
+    ctx.beginPath()
+    ctx.moveTo(this.x, this.y)
+    ctx.lineTo( // negate the angle so it goes in the right direction
+      this.x + Math.cos(-this.angle) * this.noseLength,
+      this.y + Math.sin(-this.angle) * this.noseLength
+    )
+    ctx.stroke()
   }
 }
 
@@ -88,7 +102,7 @@ class PhysicsSimulator {
 }
 
 let players = [
-  new Player('blue', width / 6, height / 2),
+  new Player('green', width / 6, height / 2),
   new Player('red', 5 * width / 6, height / 2)
 ]
 
