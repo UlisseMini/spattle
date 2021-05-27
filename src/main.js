@@ -21,17 +21,20 @@ class Player {
   constructor(color, x, y) {
     this.x = x, this.y = y
     this.dx = 100, this.dy = 0
-    this.ddx = 20, this.ddy = 90
-    this.radius = 30
-    this.color = color
-    this.angle = Math.PI / 3
-    this.noseLength = this.radius / 2
+    this.ddx = 0.5, this.ddy = 1
     this.dAngle = Math.PI
+    this.angle = Math.PI / 3
+
+    // Constants
+    this.color = color
+    this.radius = 30
+    this.noseLength = this.radius / 2
+    this.m = 50 // factor to multiply (-1, 1) acceleration
   }
 
   step(dt) {
     this.x += this.dx * dt, this.y += this.dy * dt
-    this.dx += this.ddx * dt, this.dy += this.ddy * dt
+    this.dx += this.m * this.ddx * dt, this.dy += this.m * this.ddy * dt
 
     // apply drag
     this.dx *= 1 - 0.05 * dt, this.dy *= 1 - 0.05 * dt
