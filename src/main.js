@@ -142,7 +142,7 @@ function draw(timestamp) {
   if (dt > 0.1) return window.requestAnimationFrame(draw)
 
   // Clear the screen, but leave a blur effect
-  ctx.fillStyle = 'rgba(200,200,200,0.4)'
+  ctx.fillStyle = 'rgba(0,0,0,0.4)'
   ctx.fillRect(0, 0, width, height)
 
   simulator.step(speed * dt)
