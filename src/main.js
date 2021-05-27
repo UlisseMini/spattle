@@ -136,12 +136,14 @@ let speed = 1
 
 window.onkeypress = (k) => {
   let n = k.keyCode - 48;
-  if (n >= 0 && n < 5) speed = n
-  if (n >= 5 && n <= 9) speed = 1 / n
+  if (n >= 0 && n < 5) speed = 2 ** (n - 1)
+  if (n >= 5 && n <= 9) speed = 1 / 2 ** (n - 4)
 }
 
 let simulator = new PhysicsSimulator(width, height)
-simulator.balls = [].concat(players)
+// NOTE: This must be pass-by-reference so I can delete players,
+// perhaps changing balls to be an array of arrays would be good.
+simulator.balls = players
 
 let prev = 0
 function draw(timestamp) {
@@ -162,12 +164,20 @@ function draw(timestamp) {
   // Display health of each player
   ctx.font = '48px monospace'
   let healthY = 50
-  players.forEach(player => {
+  for (let i = 0; i < players.length; i++) {
+    let player = players[i]
+
     const c = player.color.slice(0, 1).toUpperCase()
     ctx.fillStyle = player.color
     ctx.fillText(`${c}: ${player.health}`, 10, healthY)
     healthY += 50
-  })
+
+    if (player.health <= 0) {
+      players.splice(i, 1)
+      i -= 1
+      console.log(i, players)
+    }
+  }
 
   window.requestAnimationFrame(draw)
 }
