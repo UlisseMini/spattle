@@ -83,6 +83,7 @@ class PhysicsSimulator {
 
     // Teleport them away to prevent them getting stuck inside eachother
     // minimize t such that dist(b1, b2) after update is equal to r1+r2.
+    // FIXME: This causes an ugly jitter effect on collisions
     const dist = distance({x: b1.x + b1.dx, y: b1.y + b1.dy}, {x: b2.x + b2.dx, y: b2.y + b2.dy})
     const dt = Math.sqrt((b1.radius + b2.radius)) / dist
 
