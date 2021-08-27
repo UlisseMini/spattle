@@ -67,6 +67,13 @@ class Player {
       this.y + Math.sin(-this.angle) * this.noseLength
     )
     ctx.stroke()
+
+    // Draw a line in the direction we're accelerating
+    ctx.beginPath()
+    ctx.moveTo(this.x, this.y)
+    ctx.lineTo(this.x + this.ddx, this.y + this.ddy)
+
+    ctx.stroke()
   }
 }
 
