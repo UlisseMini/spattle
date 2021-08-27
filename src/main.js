@@ -12,6 +12,10 @@ function distance(a, b) {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 }
 
+function magnituide(v) {
+  return Math.sqrt(v.x ** 2 + v.y ** 2)
+}
+
 function intersecting(b1, b2) {
   const d = distance(b1, b2)
   return d <= b1.radius + b2.radius
@@ -20,8 +24,8 @@ function intersecting(b1, b2) {
 class Player {
   constructor(color, x, y) {
     this.x = x, this.y = y
-    this.dx = 100, this.dy = 0
-    this.ddx = -0.5, this.ddy = 1
+    this.dx = 0, this.dy = 0
+    this.ddx = 0, this.ddy = 0
     this.dAngle = Math.PI
     this.angle = Math.PI / 3
 
@@ -31,12 +35,11 @@ class Player {
     this.color = color
     this.radius = 30
     this.noseLength = this.radius / 2
-    this.m = 50 // factor to multiply (-1, 1) acceleration
   }
 
   step(dt) {
     this.x += this.dx * dt, this.y += this.dy * dt
-    this.dx += this.m * this.ddx * dt, this.dy += this.m * this.ddy * dt
+    this.dx += this.ddx * dt, this.dy += this.ddy * dt
 
     // apply drag
     this.dx *= 1 - 0.05 * dt, this.dy *= 1 - 0.05 * dt
@@ -126,9 +129,72 @@ class PhysicsSimulator {
   }
 }
 
+
+const max = 50
+
+class RandomPlayer extends Player {
+  step(dt) {
+    if (Math.random() > 0.99) {
+      this.ddx = max * (Math.random() * 2 - 1)
+      this.ddy = max * (Math.random() * 2 - 1)
+    }
+    super.step(dt)
+  }
+}
+
+class DumbRammingPlayer extends Player {
+  step(dt) {
+    // TODO: Make an API for bots so I don't need to hook like this
+    const other = players.filter(p => p != this)[0]
+
+    if (!other) {super.step(dt); return }
+
+    const m = Math.sqrt((other.x - this.x) ** 2 + (other.y - this.y) ** 2)
+
+    // TODO: Set acceleration not velocity
+    this.ddx = max * (other.x - this.x) / m
+    this.ddy = max * (other.y - this.y) / m
+
+    super.step(dt)
+  }
+}
+
+class SmartRammingPlayer extends Player {
+  step(dt) {
+    const other = players.filter(p => p != this)[0]
+
+    if (!other) {super.step(dt); return }
+
+    // Compute wanted velocity, then find best acceleration to
+    // bring us closer to wanted velocity
+    //
+    // Compute desired displacement
+    const s = {x: other.x - this.x, y: other.y - this.y}
+    const sm = magnituide(s)
+    // Desired velocity to achieve displacement
+    const v = {x: max * s.x / sm, y: max * s.y / sm}
+    const vm = magnituide(v)
+
+    // Desired acceleration to achieve velocity
+    const a = {x: max * v.x / vm, y: max * v.y / vm}
+
+    this.ddx = a.x, this.ddy = a.y
+
+    super.step(dt)
+  }
+}
+
+class ImmobilePlayer extends Player {
+  step(dt) {
+    this.dx = 0, this.dy = 0
+    this.ddx = 0, this.ddy = 0
+    super.step(dt)
+  }
+}
+
 let players = [
-  new Player('green', width / 6, height / 2),
-  new Player('red', 5 * width / 6, height / 2)
+  new RandomPlayer('red', 5 * width / 6, height / 2),
+  new SmartRammingPlayer('green', width / 6, height / 2),
 ]
 
 // Game speed multiplier
@@ -155,7 +221,7 @@ function draw(timestamp) {
   if (dt > 0.1) return window.requestAnimationFrame(draw)
 
   // Clear the screen, but leave a blur effect
-  ctx.fillStyle = 'rgba(0,0,0,0.4)'
+  ctx.fillStyle = 'black'
   ctx.fillRect(0, 0, width, height)
 
   simulator.step(speed * dt)
